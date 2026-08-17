@@ -1,84 +1,48 @@
-# PDF 密码保护页面
+# 文档密码保护页面
 
-这是一个简单的静态密码保护页面，部署在 GitHub Pages 上。
+这是一个带密码保护的静态文档列表页面，部署在 GitHub Pages 上。
 
 ## ⚠️ 安全提示
 
-这种方案只能防普通用户。PDF 文件仍然在仓库中，懂技术的人可能通过仓库或直接文件链接访问到文件。
+这种方案只能防普通用户。文件仍然放在公开仓库中，懂技术的人可能通过仓库或直接文件链接访问到文件。
 
 ## 文件说明
 
-- `index.html`：密码输入页面
-- `document.pdf`：要保护的 PDF 文件
+- `index.html`：密码输入 + 文档列表 + PDF 在线阅读页面
+- `*.pdf`：转换后的 PDF 文件，用于在线阅读和下载
+- `*.docx`：原始 docx 文件，可下载
 
-## 修改密码
+## 密码
 
-打开 `index.html`，找到这一行：
+默认密码：`123456`
+
+修改方法：打开 `index.html`，找到：
 
 ```javascript
 const CORRECT_PASSWORD = "123456";
 ```
 
-把 `123456` 改成你想要的密码。
+改成你想要的密码即可。
+
+## 页面结构
+
+进入后分为两栏：
+
+- 🎋 古风：元稹×白居易
+- 💼 现代：盛宇×刘聪、年锦x梦幻小弥、尹泰俊×池元英、李河民×李松河、诺顿×麦克
+
+手机访问会自动变成单列，方便滑动浏览。
 
 ## 部署到 GitHub Pages
 
-### 第一步：创建 GitHub 仓库
+1. 把本文件夹所有内容推送到 GitHub 仓库。
+2. 在仓库 `Settings → Pages` 中选择 `main` 分支，点击 Save。
+3. 等待 1–2 分钟后，访问：
 
-1. 打开 [github.com](https://github.com)，登录账号
-2. 点击右上角 `+` → `New repository`
-3. 仓库名随便取，例如 `pdf-password-site`
-4. 选择 `Public`（公开仓库）
-5. 点击 `Create repository`
-
-### 第二步：上传文件
-
-#### 方法一：网页直接上传（最简单）
-
-1. 在仓库页面点击 `Add file` → `Upload files`
-2. 把 `index.html` 和 `document.pdf` 拖进去
-3. 点击 `Commit changes`
-
-#### 方法二：用 Git 命令上传
-
-如果你电脑上有 Git：
-
-```bash
-cd pdf-password-site
-git init
-git add .
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/你的用户名/仓库名.git
-git push -u origin main
 ```
-
-### 第三步：开启 GitHub Pages
-
-1. 在仓库页面点击 `Settings`
-2. 左侧菜单找到 `Pages`
-3. 在 `Branch` 下拉框选择 `main`，然后点击 `Save`
-4. 等待 1-2 分钟，页面上会出现访问链接：
-   ```
-   https://你的用户名.github.io/仓库名/
-   ```
-
-## 绑定自己的域名
-
-如果你有自己的域名，可以这样绑定：
-
-1. 在 `pdf-password-site` 文件夹里创建一个 `CNAME` 文件，里面写上你的域名，例如：
-   ```
-   www.yourdomain.com
-   ```
-2. 把 `CNAME` 文件一起上传到 GitHub
-3. 去你的域名服务商那里，添加 DNS 记录：
-   - 类型：`CNAME`
-   - 主机记录：`www`
-   - 记录值：`你的用户名.github.io`
-4. 等待 DNS 生效（通常几分钟到几小时）
-5. 在 GitHub 仓库的 `Settings → Pages → Custom domain` 里输入你的域名，点击 `Save`
+https://你的用户名.github.io/仓库名/
+```
 
 ## 访问测试
 
-打开生成的链接，输入密码 `123456`，应该就能看到 PDF 内容。
+打开链接，输入密码 `123456`，即可看到文档列表。点击“在线阅读”可查看 PDF，点击“下载”可下载对应文件。

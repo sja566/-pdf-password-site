@@ -2,141 +2,173 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>受保护的文档</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>文档收藏</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+        }
+
+        /* 登录 */
+        .login-container {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 420px;
             padding: 20px;
         }
         .card {
             background: white;
             border-radius: 20px;
             padding: 40px 32px;
+            width: 100%;
+            max-width: 420px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
         }
         .lock-icon {
-            width: 64px;
-            height: 64px;
+            width: 64px; height: 64px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             margin: 0 auto 24px;
         }
-        .lock-icon svg {
-            width: 32px;
-            height: 32px;
-            fill: white;
-        }
-        h1 {
-            font-size: 22px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        p {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-        .input-group {
-            position: relative;
-            margin-bottom: 16px;
-        }
+        .lock-icon svg { width: 32px; height: 32px; fill: white; }
+        h1 { font-size: 22px; color: #333; margin-bottom: 8px; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 28px; }
         input[type="password"] {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e8e8e8;
-            border-radius: 12px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
+            width: 100%; padding: 14px 16px;
+            border: 2px solid #e8e8e8; border-radius: 12px;
+            font-size: 16px; outline: none; transition: border-color 0.3s;
         }
-        input[type="password"]:focus {
-            border-color: #667eea;
-        }
+        input[type="password"]:focus { border-color: #667eea; }
         button {
-            width: 100%;
-            padding: 14px;
+            width: 100%; padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
+            color: white; border: none; border-radius: 12px;
+            font-size: 16px; cursor: pointer; transition: opacity 0.2s;
         }
-        button:hover {
-            opacity: 0.95;
-        }
-        button:active {
-            transform: scale(0.98);
-        }
-        .error {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 12px;
+        button:hover { opacity: 0.95; }
+        button:active { transform: scale(0.98); }
+        .error { color: #e74c3c; font-size: 14px; margin-top: 12px; display: none; }
+
+        /* 文档列表 */
+        .gallery {
             display: none;
+            min-height: 100vh;
+            padding: 20px;
         }
-        .viewer {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #f5f5f5;
-            z-index: 100;
-            flex-direction: column;
-        }
-        .viewer-header {
-            background: white;
-            padding: 12px 20px;
+        .gallery-header {
+            max-width: 1200px;
+            margin: 0 auto 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .gallery-header h2 { color: white; font-size: 24px; }
+        .gallery-header button {
+            width: auto; padding: 8px 18px; font-size: 14px;
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+        }
+        .categories {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .category {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .category h3 {
+            font-size: 18px; color: #333; margin-bottom: 16px;
+            padding-bottom: 10px; border-bottom: 2px solid #eee;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .category.ancient h3 { border-color: #d4a373; color: #8b5a2b; }
+        .category.modern h3 { border-color: #667eea; color: #5a4fcf; }
+        .doc-list { display: flex; flex-direction: column; gap: 12px; }
+        .doc-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex; flex-direction: column; gap: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .doc-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+        .doc-title { font-size: 16px; font-weight: 600; color: #333; word-break: break-all; }
+        .doc-meta { font-size: 12px; color: #888; }
+        .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .doc-actions button {
+            flex: 1; min-width: 80px; padding: 8px 12px; font-size: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .doc-actions button.secondary {
+            background: #f0f0f0; color: #555;
+        }
+
+        /* PDF 阅读器 */
+        .viewer {
+            display: none;
+            min-height: 100vh;
+            background: #525659;
+        }
+        .viewer-header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: #323639; padding: 10px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            gap: 10px;
         }
         .viewer-header span {
-            color: #666;
-            font-size: 14px;
+            color: #fff; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        .viewer-header .buttons { display: flex; gap: 10px; flex-wrap: wrap; }
         .viewer-header button {
-            width: auto;
-            padding: 8px 16px;
-            font-size: 14px;
+            width: auto; padding: 8px 14px; font-size: 13px;
+            background: #4a4a4a; border: 1px solid #666;
         }
-        iframe {
-            flex: 1;
-            border: none;
-            width: 100%;
+        #pdfContainer {
+            padding-top: 70px; padding-bottom: 30px;
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        .pdf-page {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            max-width: 95vw;
+        }
+        .loading {
+            color: white; text-align: center; padding: 40px; font-size: 14px;
+        }
+        .page-number { color: #aaa; font-size: 12px; text-align: center; margin-top: 4px; }
+
+        @media (max-width: 600px) {
+            .gallery-header h2 { font-size: 20px; }
+            .categories { grid-template-columns: 1fr; }
+            .doc-actions button { flex: 1 1 100%; }
+            .viewer-header { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="loginBox">
+    <!-- 登录页 -->
+    <div class="login-container" id="loginBox">
         <div class="card">
             <div class="lock-icon">
                 <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
             </div>
             <h1>文档已加密</h1>
-            <p>请输入密码以查看文档内容</p>
+            <p class="subtitle">请输入密码以查看文档列表</p>
             <div class="input-group">
                 <input type="password" id="password" placeholder="请输入密码" autocomplete="off">
             </div>
@@ -145,27 +177,62 @@
         </div>
     </div>
 
+    <!-- 文档列表 -->
+    <div class="gallery" id="gallery">
+        <div class="gallery-header">
+            <h2>📚 文档收藏</h2>
+            <button onclick="logout()">退出登录</button>
+        </div>
+        <div class="categories" id="categories"></div>
+    </div>
+
+    <!-- PDF 阅读器 -->
     <div class="viewer" id="viewer">
         <div class="viewer-header">
-            <span>✅ 密码验证通过</span>
-            <button onclick="location.reload()">退出</button>
+            <span id="viewerTitle">正在阅读</span>
+            <div class="buttons">
+                <button onclick="downloadCurrent('pdf')">下载 PDF</button>
+                <button onclick="downloadCurrent('docx')">下载原文件</button>
+                <button onclick="backToGallery()">返回列表</button>
+            </div>
         </div>
-        <iframe id="pdfFrame"></iframe>
+        <div id="pdfContainer">
+            <div class="loading">正在加载文档...</div>
+        </div>
     </div>
 
     <script>
-        // 在这里修改密码
         const CORRECT_PASSWORD = "123456";
 
-        // PDF 文件名（放在同一目录下）
-        const PDF_FILE = "document.pdf";
+        // 古风 / 现代 分类
+        const DOCS = [
+            { title: "元稹×白居易", category: "ancient", pdf: "元稹×白居易(21).pdf", docx: "元稹×白居易(21).docx" },
+            { title: "盛宇×刘聪", category: "modern", pdf: "盛宇×刘聪(1).pdf", docx: "盛宇×刘聪(1).docx" },
+            { title: "年锦x梦幻小弥", category: "modern", pdf: "年锦x梦幻小弥(2)_林叙×江言.pdf", docx: "年锦x梦幻小弥(2)_林叙×江言.docx" },
+            { title: "尹泰俊×池元英", category: "modern", pdf: "尹泰俊×池元英(5)_林叙×江言.pdf", docx: "尹泰俊×池元英(5)_林叙×江言.docx" },
+            { title: "李河民×李松河", category: "modern", pdf: "李河民×李松河(9)_林叙×江言.pdf", docx: "李河民×李松河(9)_林叙×江言.docx" },
+            { title: "诺顿×麦克", category: "modern", pdf: "诺顿×麦克(6).pdf", docx: "诺顿×麦克(6).docx" }
+        ];
+
+        const CATEGORY_LABELS = {
+            ancient: { name: "古风", icon: "🎋", className: "ancient" },
+            modern: { name: "现代", icon: "💼", className: "modern" }
+        };
+
+        let currentDoc = null;
+        let rendered = false;
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         function checkPassword() {
             const input = document.getElementById("password").value;
             if (input === CORRECT_PASSWORD) {
                 document.getElementById("loginBox").style.display = "none";
-                document.getElementById("viewer").style.display = "flex";
-                document.getElementById("pdfFrame").src = PDF_FILE;
+                document.getElementById("gallery").style.display = "block";
+                if (!rendered) {
+                    renderGallery();
+                    rendered = true;
+                }
             } else {
                 document.getElementById("errorMsg").style.display = "block";
                 document.getElementById("password").value = "";
@@ -173,11 +240,125 @@
             }
         }
 
-        // 支持回车键提交
         document.getElementById("password").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                checkPassword();
+            if (event.key === "Enter") checkPassword();
+        });
+
+        function logout() {
+            location.reload();
+        }
+
+        function renderGallery() {
+            const container = document.getElementById("categories");
+            const groups = { ancient: [], modern: [] };
+            DOCS.forEach(doc => groups[doc.category].push(doc));
+
+            ["ancient", "modern"].forEach(cat => {
+                const info = CATEGORY_LABELS[cat];
+                const section = document.createElement("div");
+                section.className = "category " + info.className;
+
+                const heading = document.createElement("h3");
+                heading.textContent = info.icon + " " + info.name;
+                section.appendChild(heading);
+
+                const list = document.createElement("div");
+                list.className = "doc-list";
+
+                groups[cat].forEach(doc => {
+                    const card = document.createElement("div");
+                    card.className = "doc-card";
+                    card.innerHTML = `
+                        <div class="doc-title">${doc.title}</div>
+                        <div class="doc-meta">PDF 在线阅读 / docx 原文件下载</div>
+                        <div class="doc-actions">
+                            <button onclick='openViewer(${JSON.stringify(doc).replace(/'/g, "&#39;")})'>在线阅读</button>
+                            <button class="secondary" onclick='downloadFile("${doc.pdf}")'>下载 PDF</button>
+                            <button class="secondary" onclick='downloadFile("${doc.docx}")'>下载原文件</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+
+                section.appendChild(list);
+                container.appendChild(section);
+            });
+        }
+
+        function openViewer(doc) {
+            currentDoc = doc;
+            document.getElementById("gallery").style.display = "none";
+            document.getElementById("viewer").style.display = "block";
+            document.getElementById("viewerTitle").textContent = "📖 " + doc.title;
+            renderPDF(doc.pdf);
+        }
+
+        function backToGallery() {
+            document.getElementById("viewer").style.display = "none";
+            document.getElementById("gallery").style.display = "block";
+            currentDoc = null;
+        }
+
+        async function renderPDF(file) {
+            const container = document.getElementById("pdfContainer");
+            container.innerHTML = '<div class="loading">正在加载文档...</div>';
+
+            try {
+                const pdf = await pdfjsLib.getDocument(encodeURIComponent(file)).promise;
+                container.innerHTML = '';
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const wrapper = document.createElement("div");
+
+                    const canvas = document.createElement("canvas");
+                    canvas.className = "pdf-page";
+
+                    const viewport = page.getViewport({ scale: 1 });
+                    const maxWidth = Math.min(window.innerWidth * 0.95, 800);
+                    const scale = maxWidth / viewport.width;
+                    const scaledViewport = page.getViewport({ scale: scale });
+
+                    canvas.width = scaledViewport.width;
+                    canvas.height = scaledViewport.height;
+
+                    const context = canvas.getContext("2d");
+                    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+
+                    wrapper.appendChild(canvas);
+
+                    const pageLabel = document.createElement("div");
+                    pageLabel.className = "page-number";
+                    pageLabel.textContent = `第 ${pageNum} 页 / 共 ${pdf.numPages} 页`;
+                    wrapper.appendChild(pageLabel);
+
+                    container.appendChild(wrapper);
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="loading">文档加载失败，请刷新页面重试<br>' + error.message + '</div>';
             }
+        }
+
+        function downloadFile(file) {
+            const link = document.createElement("a");
+            link.href = file;
+            link.download = file;
+            link.click();
+        }
+
+        function downloadCurrent(type) {
+            if (!currentDoc) return;
+            downloadFile(type === 'pdf' ? currentDoc.pdf : currentDoc.docx);
+        }
+
+        let resizeTimer;
+        window.addEventListener("resize", function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (currentDoc && document.getElementById("viewer").style.display === "block") {
+                    renderPDF(currentDoc.pdf);
+                }
+            }, 300);
         });
     </script>
 </body>
